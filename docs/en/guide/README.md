@@ -1,194 +1,229 @@
-# Get started
+CREATE TABLE Staff (
+    sno        NUMBER(4) PRIMARY KEY,
+    sname      VARCHAR2(30) NOT NULL,
+    sal        NUMBER(7,2),
+    DOB        DATE,
+    gender     CHAR(1),
+    ID         NUMBER(10),
+    email      VARCHAR2(50),
 
-FreeSql is a powerful Object-Relational Mapping (O/RM) component, supporting .NET Core 2.1+ and .NET Framework 4.0+.
+    CONSTRAINT chk_salary
+        CHECK (sal BETWEEN 0 AND 9999.99),
 
-QQ Groups: 561616019 (Online), 4336577 (Full), 8578575 (Full), 52508226 (Full)
+    CONSTRAINT chk_gender
+        CHECK (gender IN ('M','F')),
 
-For issue reporting, please visit https://github.com/dotnetcore/FreeSql/issues
+    CONSTRAINT chk_age
+        CHECK (DOB <= ADD_MONTHS(SYSDATE, -216))
+);
 
-## Installation Packages
 
-To access a specific database, install the corresponding `FreeSql.Provider.XX`. Alternatively, you can install `FreeSql.All` to include all providers.
+/*====================================================
+  CREATE TABLE: VACATION
+====================================================*/
+CREATE TABLE Vacation (
+    sno        NUMBER(4),
+    sdate      DATE,
+    edate      DATE,
+    notes      VARCHAR2(100),
 
-::: code-tabs
+    CONSTRAINT pk_vacation
+        PRIMARY KEY (sno, sdate),
 
-@tab:active .NET CLI
+    CONSTRAINT fk_staff
+        FOREIGN KEY (sno)
+        REFERENCES Staff(sno),
 
-```bash
-dotnet add package FreeSql
-dotnet add package FreeSql.Provider.Sqlite
-```
+    CONSTRAINT chk_dates
+        CHECK (sdate < edate)
+);
 
-@tab Package Manager
 
-```bash
-Install-Package FreeSql
-Install-Package FreeSql.Provider.Sqlite
-```
+/*====================================================
+  INSERT DATA INTO STAFF
+====================================================*/
+INSERT INTO Staff VALUES
+(2442, 'Ruba', 5400.00, TO_DATE('1982-04-14','YYYY-MM-DD'), 'F', 4892785294, 'ruba@gmail.com');
 
-:::
+INSERT INTO Staff VALUES
+(4251, 'Ahmad', 3500.00, TO_DATE('1989-12-12','YYYY-MM-DD'), 'M', 1479358454, 'ahmad@gmail.com');
 
-| Provider                            | Description                                                                                                                                                                                             |
-| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| FreeSql.Provider.MySql              | Based on MySql.Data (official from Oracle)                                                                                                                                                              |
-| FreeSql.Provider.MySqlConnector     | Based on MySqlConnector (open-source community, recommended++)<br>_Supports MySQL, MariaDB, Percona, Amazon Aurora, Azure Database for MySQL, Google Cloud SQL for MySQL, OceanBase, Doris, Tidb, etc._ |
-| FreeSql.Provider.PostgreSQL         | Based on PostgreSQL 9.5+                                                                                                                                                                                |
-| FreeSql.Provider.SqlServer          | Based on SqlServer 2005+                                                                                                                                                                                |
-| FreeSql.Provider.SqlServerForSystem | Based on System.Data.SqlClient + SqlServer 2005+                                                                                                                                                        |
-| FreeSql.Provider.Sqlite             | Based on System.Data.SQLite.Core                                                                                                                                                                        |
-| FreeSql.Provider.SqliteCore         | Based on Microsoft.Data.Sqlite.Core, requires installing bundle_xxx                                                                                                                                     |
-| FreeSql.Provider.Duckdb             | Based on DuckDB.NET.Data.Full                                                                                                                                                                           |
-| FreeSql.Provider.ClickHouse         | Based on ClickHouse.Client                                                                                                                                                                              |
-| FreeSql.Provider.QuestDb            | Based on Npgsql and RestApi                                                                                                                                                                             |
-| FreeSql.Provider.Oracle             |                                                                                                                                                                                                         |
-| FreeSql.Provider.OracleOledb        | Based on Oledb, addresses US7ASCII Chinese garbled text issue                                                                                                                                           |
-| FreeSql.Provider.Firebird           |                                                                                                                                                                                                         |
-| FreeSql.Provider.MsAccess           |                                                                                                                                                                                                         |
-| FreeSql.Provider.Dameng             | Based on Dameng Database                                                                                                                                                                                |
-| FreeSql.Provider.ShenTong           | Based on ShenZhou General Database                                                                                                                                                                      |
-| FreeSql.Provider.KingbaseES         | Based on RenDa JinCang Database                                                                                                                                                                         |
-| FreeSql.Provider.GBase              | Based on NanDa General GBase Database                                                                                                                                                                   |
-| FreeSql.Provider.Xugu               | Based on Xugu Database                                                                                                                                                                                  |
-| FreeSql.Provider.Odbc               | Based on ODBC                                                                                                                                                                                           |
-| FreeSql.Provider.Custom             | Custom adaptation<br>_Supports SqlServer2000, PolarDB, KunDB, other databases, etc._                                                                                                                    |
+INSERT INTO Staff VALUES
+(5638, 'Omar', 8700.50, TO_DATE('1984-03-23','YYYY-MM-DD'), 'M', 8904365783, 'omar@gmail.com');
 
-## Create Entity
+INSERT INTO Staff VALUES
+(9604, 'Jana', 2500.50, TO_DATE('2001-01-23','YYYY-MM-DD'), 'F', 5792957829, 'jana@gmail.com');
 
-`FreeSql` uses models to perform data access, where models are represented by entity classes that correspond to database tables or views, and are used for querying and saving data.
+INSERT INTO Staff VALUES
+(3424, 'Sara', 2750.00, TO_DATE('1999-05-19','YYYY-MM-DD'), 'F', 1782375892, 'sara@gmail.com');
 
-You can generate entity models from an existing database using the `IDbFirst` interface provided by `FreeSql`, which implements [Entity Model Generation](db-first.md).
+INSERT INTO Staff VALUES
+(2901, 'Ali', 7100.00, TO_DATE('1979-07-04','YYYY-MM-DD'), 'M', 9837583309, 'ali@gmail.com');
 
-Alternatively, you can manually create models. By creating or modifying the database structure based on these models, `FreeSql` provides [CodeFirst](code-first.md) synchronization APIs (and even supports automatic synchronization during the development phase).
 
-```csharp
-using FreeSql.DataAnnotations;
-using System;
+/*====================================================
+  INSERT DATA INTO VACATION
+====================================================*/
+INSERT INTO Vacation VALUES
+(2442, TO_DATE('2024-11-10','YYYY-MM-DD'),
+       TO_DATE('2024-11-24','YYYY-MM-DD'),
+       'Sickness');
 
-public class Blog
-{
-    [Column(IsIdentity = true, IsPrimary = true)]
-    public int BlogId { get; set; }
-    public string Url { get; set; }
-    public int Rating { get; set; }
-}
-```
+INSERT INTO Vacation VALUES
+(2442, TO_DATE('2025-09-12','YYYY-MM-DD'),
+       TO_DATE('2025-09-19','YYYY-MM-DD'),
+       'Trip');
 
-## How to Use
+INSERT INTO Vacation VALUES
+(4251, TO_DATE('2026-03-25','YYYY-MM-DD'),
+       TO_DATE('2026-03-28','YYYY-MM-DD'),
+       'Eid Holiday');
 
-> Note: IFreeSql should be declared as a singleton in the project.
+INSERT INTO Vacation VALUES
+(4251, TO_DATE('2025-07-10','YYYY-MM-DD'),
+       TO_DATE('2025-07-20','YYYY-MM-DD'),
+       'Family gather');
 
-::: code-tabs
+INSERT INTO Vacation VALUES
+(4251, TO_DATE('2024-11-28','YYYY-MM-DD'),
+       TO_DATE('2024-12-05','YYYY-MM-DD'),
+       'Emergency');
 
-@tab:active ASP.NET Core 6+ (Dependency Injection)
+INSERT INTO Vacation VALUES
+(5638, TO_DATE('2024-03-23','YYYY-MM-DD'),
+       TO_DATE('2024-05-17','YYYY-MM-DD'),
+       'Medical treatment');
 
-```csharp
-var builder = WebApplication.CreateBuilder(args);
-Func<IServiceProvider, IFreeSql> fsqlFactory = r =>
-{
-    IFreeSql fsql = new FreeSql.FreeSqlBuilder()
-        .UseConnectionString(FreeSql.DataType.Sqlite, @"Data Source=freedb.db")
-        .UseMonitorCommand(cmd => Console.WriteLine($"Sql：{cmd.CommandText}"))
-        .UseAutoSyncStructure(true) //Entity structures are automatically synchronized to the database
-        .Build();
-    return fsql;
-};
-builder.Services.AddSingleton<IFreeSql>(fsqlFactory);
-WebApplication app = builder.Build();
-```
+INSERT INTO Vacation VALUES
+(5638, TO_DATE('2025-08-12','YYYY-MM-DD'),
+       TO_DATE('2025-09-02','YYYY-MM-DD'),
+       'Summer trip');
 
-@tab .NET Framework (General)
+INSERT INTO Vacation VALUES
+(9604, TO_DATE('2026-02-15','YYYY-MM-DD'),
+       TO_DATE('2026-02-20','YYYY-MM-DD'),
+       'Wedding');
 
-```csharp
-// Note: The generic class DB<T> cannot be used.
-public class DB
-{
-   static Lazy<IFreeSql> sqliteLazy = new Lazy<IFreeSql>(() =>
-   {
-        var fsql = new FreeSql.FreeSqlBuilder()
-            .UseMonitorCommand(cmd => Trace.WriteLine($"Sql：{cmd.CommandText}"))
-            .UseConnectionString(FreeSql.DataType.Sqlite, @"Data Source=freedb.db")
-            .UseAutoSyncStructure(true) //Entity structures are automatically synchronized to the database
-            .Build();
-        return fsql;
-    });
-    public static IFreeSql Sqlite => sqliteLazy.Value;
-}
-```
+INSERT INTO Vacation VALUES
+(9604, TO_DATE('2026-04-03','YYYY-MM-DD'),
+       TO_DATE('2026-05-03','YYYY-MM-DD'),
+       'Honeymoon');
 
-:::
+INSERT INTO Vacation VALUES
+(3424, TO_DATE('2025-12-28','YYYY-MM-DD'),
+       TO_DATE('2026-01-02','YYYY-MM-DD'),
+       'Holiday');
 
-`IFreeSql` is the top-level object in the ORM, and all operations are performed using its methods or properties:
+INSERT INTO Vacation VALUES
+(2901, TO_DATE('2024-10-15','YYYY-MM-DD'),
+       TO_DATE('2024-10-25','YYYY-MM-DD'),
+       'Emergency');
 
-- `UseAutoSyncStructure` automatically synchronizes entity structures to the database in the development environment.
-- `UseNameConvert` uses underscore naming for database tables and columns while using C# PascalCase for code.
+COMMIT;
 
-```csharp
-fsql.Select<Blog>() // Query
-fsql.Insert<Blog>() // Insert
-fsql.Update<Blog>() // Update
-fsql.Delete<Blog>() // Delete
-fsql.InsertOrUpdate<Blog>() // Insert or Update
-fsql.Transaction(..) // Transaction
 
-fsql.CodeFirst // CodeFirst object
-fsql.DbFirst // DbFirst object
-fsql.Ado // Ado object
-fsql.Aop // Aop object
-fsql.GlobalFilter // Global filter object
-```
+/*====================================================
+  QUERY 1
+  List the names and salaries of all staff members
+====================================================*/
+SELECT sname, sal
+FROM Staff;
 
-**Note: Use `UseAutoSyncStructure` with caution in production environments.**
 
-**Note: Use `UseAutoSyncStructure` with caution in production environments.**
+/*====================================================
+  QUERY 2
+  Retrieve the staff number and name of all female employees
+====================================================*/
+SELECT sno, sname
+FROM Staff
+WHERE gender = 'F';
 
-**Note: Use `UseAutoSyncStructure` with caution in production environments.**
 
-## FreeSqlBuilder
+/*====================================================
+  QUERY 3
+  Show the staff number along with the start and end dates
+  of all vacations
+====================================================*/
+SELECT sno, sdate, edate
+FROM Vacation;
 
-| Method                                | Return Value  | Description                                                                                                                                                  |
-| ------------------------------------- | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| UseConnectionString                   | this          | Sets the connection string                                                                                                                                   |
-| UseAdoConnectionPool                  | this          | Configures the connection pool scheme (default is false; recommended to set true for remote access)                                                          |
-| UseSlave                              | this          | Configures a slave database; supports multiple slaves                                                                                                        |
-| UseSlaveWeight                        | this          | Configures the weight of the slave database                                                                                                                  |
-| UseConnectionFactory                  | this          | Sets a custom database connection object (bypasses the built-in connection pool technology)                                                                  |
-| UseAutoSyncStructure                  | this          | [Essential for development] Automatically synchronizes entity structures to the database; checks for entity creation or modifications during program runtime |
-| UseNoneCommandParameter               | this          | Disables command parameterization for execution, applicable for `Insert/Update`; can also use `IInsert/IUpdate.NoneParameter()` temporarily                  |
-| UseGenerateCommandParameterWithLambda | this          | Generates command parameterization, applicable for lambda expression parsing                                                                                 |
-| UseLazyLoading                        | this          | Enables lazy loading functionality                                                                                                                           |
-| UseMonitorCommand                     | this          | Monitors global SQL execution before and after                                                                                                               |
-| UseMappingPriority                    | this          | Specifies the mapping priority (default is `Aop < FluentApi < Attribute`); the last one has the highest priority)                                            |
-| UseNameConvert                        | this          | Automatically converts names from Entity to Db                                                                                                               |
-| UseQuoteSqlName                       | this          | Determines if SQL names use brackets `[]`, backticks `` ` ``, or double quotes `""`                                                                          |
-| UseExitAutoDisposePool                | this          | Listens to `AppDomain.CurrentDomain.ProcessExit` and `Console.CancelKeyPress` events to automatically release the connection pool (default is true)          |
-| `Build<T>`                            | `IFreeSql<T>` | Creates an `IFreeSql` object; note: designed as a singleton, avoid creating multiple instances                                                               |
 
-## ConnectionStrings
+/*====================================================
+  QUERY 4
+  Display staff names, emails, and salaries sorted by salary
+  in descending order
+====================================================*/
+SELECT sname, email, sal
+FROM Staff
+ORDER BY sal DESC;
 
-| DataType                                                                                               | ConnectionString                                                                                                                                                                                  |
-| ------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| DataType.MySql                                                                                         | Data Source=127.0.0.1;Port=3306;User ID=root;Password=root; Initial Catalog=cccddd;Charset=utf8mb4; SslMode=none;Min pool size=1                                                                  |
-| DataType.PostgreSQL                                                                                    | Host=192.168.164.10;Port=5432;Username=postgres;Password=123456; Database=tedb;ArrayNullabilityMode=Always;Pooling=true;Minimum Pool Size=1                                                       |
-| DataType.SqlServer                                                                                     | Data Source=.;User Id=sa;Password=123456;Initial Catalog=freesqlTest;Encrypt=True;TrustServerCertificate=True;Pooling=true;Min Pool Size=1                                                        |
-| DataType.Oracle                                                                                        | user id=user1;password=123456; data source=//127.0.0.1:1521/XE;Pooling=true;Min Pool Size=1                                                                                                       |
-| DataType.Sqlite                                                                                        | Data Source=\|DataDirectory\|\document.db; Attachs=xxxtb.db; Pooling=true;Min Pool Size=1                                                                                                         |
-| DataType.DuckDB                                                                                        | [https://duckdb.net/docs/connection-string.html](https://duckdb.net/docs/connection-string.html)                                                                                                  |
-| DataType.ClickHouse                                                                                    | DataCompress=False;BufferSize=32768;SocketTimeout=10000;CheckCompressedHash=False;Encrypt=False;Compressor=lz4;Host=192.168.0.121;Port=8125;Database=PersonnelLocation;Username=root;Password=123 |
-| DataType.Firebird                                                                                      | database=localhost:D:\fbdata\EXAMPLES.fdb;user=sysdba;password=123456                                                                                                                             |
-| DataType.QuestDb                                                                                       | host=localhost;port=8812;username=admin;password=quest;database=qdb;ServerCompatibilityMode=NoTypeLoading;                                                                                        |
-| DataType.MsAccess                                                                                      | Provider=Microsoft.Jet.OleDb.4.0;Data Source=d:/accdb/2003.mdb                                                                                                                                    |
-| DataType.MsAccess(accdb)                                                                               | Provider=Microsoft.ACE.OLEDB.12.0;Data Source=d:/accdb/2003.accdb;                                                                                                                                |
-| DataType.MsAccess(加密)                                                                                | Provider=Microsoft.ACE.OLEDB.12.0;Data Source=d:/accdb/2003.accdb;Jet OLEDB:Database Password=12341234                                                                                            |
-| DataType.Dameng(达梦)                                                                                  | server=127.0.0.1;port=5236;user=2user;password=123456789;database=2user;poolsize=5                                                                                                                |
-| DataType.ShenTong(神通)                                                                                | HOST=192.168.164.10;PORT=2003;DATABASE=OSRDB;USERNAME=SYSDBA;PASSWORD=szoscar55;MAXPOOLSIZE=2                                                                                                     |
-| DataType.KingbaseES(人大金仓) V008R003                                                                 | Server=127.0.0.1;Port=54321;UID=USER2;PWD=123456789;database=TEST;MAXPOOLSIZE=2                                                                                                                   |
-| DataType.Gbase(南大通用)                                                                               | Driver={GBase ODBC DRIVER (64-Bit)};Host=192.168.164.134;Service=9088;Server=gbase01;Database=testdb;Protocol=onsoctcp;Uid=gbasedbt;Pwd=GBase123;Db_locale=zh_CN.utf8;Client_locale=zh_CN.utf8    |
-| DataType.Xugu(虚谷)                                                                                    | IP=127.0.0.1;DB=SYSTEM;User=SYSDBA;PWD=SYSDBA;Port=5138;AUTO_COMMIT=on;CHAR_SET=UTF8                                                                                                              |
-| DataType.OdbcMySql                                                                                     | Driver={MySQL ODBC 8.0 Unicode Driver}; Server=127.0.0.1;Persist Security Info=False; Trusted_Connection=Yes;UID=root;PWD=root; DATABASE=cccddd_odbc;Charset=utf8; SslMode=none;Min Pool Size=1   |
-| DataType.OdbcSqlServer                                                                                 | Driver={SQL Server};Data Source=.;User Id=sa;Password=123456;Initial Catalog=freesqlTest;Encrypt=True;TrustServerCertificate=True;Pooling=true;Min Pool Size=1                                    |
-| DataType.OdbcOracle                                                                                    | Driver={Oracle in XE};Server=//127.0.0.1:1521/XE; Persist Security Info=False; Trusted_Connection=Yes;UID=odbc1;PWD=123456; Min Pool Size=1                                                       |
-| DataType.OdbcPostgreSQL                                                                                | Driver={PostgreSQL Unicode(x64)};Server=192.168.164.10; Port=5432;UID=postgres;PWD=123456; Database=tedb_odbc;Pooling=true;Min Pool Size=1                                                        |
-| DataType.OdbcDameng (达梦)                                                                             | Driver={DM8 ODBC DRIVER};Server=127.0.0.1:5236; Persist Security Info=False; Trusted_Connection=Yes; UID=USER1;PWD=123456789                                                                      |
-| DataType.OdbcKingbaseES (人大金仓) V008R003                                                            | Driver={KingbaseES 8.2 ODBC Driver ANSI};Server=127.0.0.1;Port=54321;UID=USER2;PWD=123456789;database=TEST                                                                                        |
-| DataType.Odbc                                                                                          | Driver={SQL Server};Server=.;Persist Security Info=False; Trusted_Connection=Yes;Integrated Security=True; DATABASE=freesqlTest_odbc; Pooling=true;Min pool size=1                                |
-| [DataType.Custom](https://github.com/dotnetcore/FreeSql/tree/master/Providers/FreeSql.Provider.Custom) | "Custom Connection String: Access Any Database"                                                                                                                                                   |
+
+/*====================================================
+  QUERY 5
+  List the names of staff members who have never taken
+  a vacation
+====================================================*/
+SELECT sname
+FROM Staff
+WHERE sno NOT IN (
+    SELECT sno
+    FROM Vacation
+);
+
+
+/*====================================================
+  QUERY 6
+  Calculate the average salary for male and female staff
+  separately
+====================================================*/
+SELECT gender, AVG(sal) AS avg_salary
+FROM Staff
+GROUP BY gender;
+
+
+/*====================================================
+  QUERY 7
+  List staff names and the sum of their vacation days,
+  put 0 for staff with no vacations
+====================================================*/
+SELECT s.sname,
+       NVL(SUM(v.edate - v.sdate),0) AS total_days
+FROM Staff s
+LEFT JOIN Vacation v
+ON s.sno = v.sno
+GROUP BY s.sname;
+
+
+/*====================================================
+  QUERY 8
+  List all the staff names with salary greater than
+  the company's average salary
+====================================================*/
+SELECT sname
+FROM Staff
+WHERE sal > (
+    SELECT AVG(sal)
+    FROM Staff
+);
+
+
+/*====================================================
+  QUERY 9
+  Find vacations that lasted more than 10 days
+====================================================*/
+SELECT sno, sdate, edate
+FROM Vacation
+WHERE (edate - sdate) > 10;
+
+
+/*====================================================
+  QUERY 10
+  For each staff member, show the staff member's name
+  and the total number of vacation days taken
+====================================================*/
+SELECT s.sname,
+       SUM(v.edate - v.sdate) AS total_vacation_days
+FROM Staff s
+JOIN Vacation v
+ON s.sno = v.sno
+GROUP BY s.sname;
